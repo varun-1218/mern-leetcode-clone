@@ -1,0 +1,16 @@
+node_modules/
+package-lock.json
+yarn.lock
+.env
+.env.local
+dist/
+build/
+.DS_Store
+Thumbs.db
+*.log
+14Dev/frontend/node_modules/
+14Dev/backend/node_modules/
+14Dev/frontend/build/
+14Dev/backend/dist/
+.vscode/
+.idea/
