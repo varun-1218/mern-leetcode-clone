@@ -1,6 +1,8 @@
+
+require('dotenv').config();
 const express = require('express')
 const app = express();
-require('dotenv').config();
+// require('dotenv').config();
 const main =  require('./config/db')
 const cookieParser =  require('cookie-parser');
 const authRouter = require("./routes/userAuth");
@@ -32,6 +34,7 @@ const InitalizeConnection = async ()=>{
     try{
 
         await Promise.all([main(),redisClient.connect()]);
+        // await main();
         console.log("DB Connected");
         
         app.listen(process.env.PORT, ()=>{
