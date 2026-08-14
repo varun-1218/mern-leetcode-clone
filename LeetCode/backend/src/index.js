@@ -50,8 +50,6 @@
 
 // InitalizeConnection();
 
-
-
 require('dotenv').config();
 const express = require('express');
 const app = express();
@@ -60,17 +58,26 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
-// Import routes – using the actual file names
-const problemRouter = require('./routes/problemCreator');   // correct
-const submitRouter = require('./routes/submit');           // correct
-const authRouter = require('./routes/userAuth');           // correct
-const aiRouter = require('./routes/aiChatting');           // correct
-const videoRouter = require('./routes/videoCreator');      // correct
+// Import routes
+const problemRouter = require('./routes/problemCreator');
+const submitRouter = require('./routes/submit');
+const authRouter = require('./routes/userAuth');
+const aiRouter = require('./routes/aiChatting');
+const videoRouter = require('./routes/videoCreator');
 
 // Swagger setup
 const setupSwagger = require('./swagger');
 
-app.use(cors());
+// ✅ CORS Configuration (IMPORTANT for cookies + cross-origin)
+const corsOptions = {
+  origin: [
+    'http://localhost:5173',                    // Local development
+    'https://mern-leetcode-clone.vercel.app'    // Production (your Vercel frontend)
+  ],
+  credentials: true, // Allow cookies to be sent
+};
+app.use(cors(corsOptions));
+
 app.use(bodyParser.json());
 app.use(cookieParser());
 
