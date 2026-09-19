@@ -103,14 +103,22 @@ const PORT = process.env.PORT || 3000;
 const startServer = async () => {
   try {
     await main();
-    await redisClient.connect();         // <-- ADD THIS
-    console.log('✅ Redis connected');
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
+    console.log('✅ MongoDB connected');
   } catch (err) {
-    console.error('❌ Failed to start server:', err);
+    console.error('❌ MongoDB connection failed:', err.message);
+    process.exit(1);
   }
+
+  try {
+    await redisClient.connect();
+  } catch (err) {
+    console.warn('⚠️ Redis not available, continuing without it:', err.message);
+  }
+
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
 };
 
 startServer();
+
