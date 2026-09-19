@@ -259,7 +259,7 @@ const solveDoubt = async (req, res) => {
     
     // Use gemini-2.5-flash which you have access to
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-2.5-flash", // Use the model you have access to
+      model: "gemini-3.6-flash", // Updated model // Use the model you have access to
       systemInstruction: `
 You are an expert Data Structures and Algorithms (DSA) tutor specializing in helping users solve coding problems. Your role is strictly limited to DSA-related assistance only.
 
