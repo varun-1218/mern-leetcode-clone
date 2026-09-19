@@ -27,15 +27,15 @@
 
 
 
-
 const { createClient } = require('redis');
 
 const redisClient = createClient({
   username: 'default',
-  password: process.env.REDIS_PASSWORD,   // raw password, not URL
+  password: process.env.REDIS_PASSWORD,
   socket: {
-    host: process.env.REDIS_HOST,         // host only
+    host: process.env.REDIS_HOST,
     port: parseInt(process.env.REDIS_PORT, 10),
+    reconnectStrategy: false,   // <-- do not retry forever
   },
 });
 

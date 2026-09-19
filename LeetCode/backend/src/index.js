@@ -109,16 +109,17 @@ const startServer = async () => {
     process.exit(1);
   }
 
-  try {
-    await redisClient.connect();
-  } catch (err) {
-    console.warn('⚠️ Redis not available, continuing without it:', err.message);
-  }
+  // Try to connect Redis, but don't block the server
+  redisClient.connect().catch((err) => {
+    console.warn('⚠️ Redis not available:', err.message);
+  });
 
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
 };
+
+
 
 startServer();
 
