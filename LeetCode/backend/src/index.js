@@ -50,13 +50,18 @@
 
 // InitalizeConnection();
 
+
+
+
 require('dotenv').config();
 const express = require('express');
 const app = express();
-const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+
+// Import DB connection
+const main = require('./config/db');
 
 // Import routes
 const problemRouter = require('./routes/problemCreator');
@@ -65,26 +70,26 @@ const authRouter = require('./routes/userAuth');
 const aiRouter = require('./routes/aiChatting');
 const videoRouter = require('./routes/videoCreator');
 
-// Swagger setup
+// Swagger
 const setupSwagger = require('./swagger');
 
-// ✅ CORS Configuration (IMPORTANT for cookies + cross-origin)
+// CORS
 const corsOptions = {
   origin: [
-    'http://localhost:5173',                    // Local development
-    'https://mern-leetcode-clone.vercel.app'    // Production (your Vercel frontend)
+    'http://localhost:5173',
+    'https://mern-leetcode-clone.vercel.app'
   ],
-  credentials: true, // Allow cookies to be sent
+  credentials: true,
 };
 app.use(cors(corsOptions));
 
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-// Mount Swagger (before your routes)
+// Swagger
 setupSwagger(app);
 
-// Mount routes
+// Routes
 app.use('/problem', problemRouter);
 app.use('/submission', submitRouter);
 app.use('/user', authRouter);
@@ -92,6 +97,17 @@ app.use('/ai', aiRouter);
 app.use('/video', videoRouter);
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+
+// ✅ Call the DB connection before starting the server
+const startServer = async () => {
+  try {
+    await main();
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (err) {
+    console.error('❌ Failed to start server:', err);
+  }
+};
+
+startServer();
