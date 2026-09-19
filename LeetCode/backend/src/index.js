@@ -60,8 +60,9 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
-// Import DB connection
+// Import DB and Redis
 const main = require('./config/db');
+const redisClient = require('./config/redis');   // <-- ADD THIS
 
 // Import routes
 const problemRouter = require('./routes/problemCreator');
@@ -98,10 +99,12 @@ app.use('/video', videoRouter);
 
 const PORT = process.env.PORT || 3000;
 
-// ✅ Call the DB connection before starting the server
+// ✅ Connect to MongoDB and Redis before starting the server
 const startServer = async () => {
   try {
     await main();
+    await redisClient.connect();         // <-- ADD THIS
+    console.log('✅ Redis connected');
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
