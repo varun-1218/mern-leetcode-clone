@@ -532,6 +532,92 @@
 // module.exports = solveDoubt;
 
 
+// const { GoogleGenerativeAI } = require("@google/generative-ai");
+
+// const solveDoubt = async (req, res) => {
+//   try {
+//     const {
+//       messages = [],
+//       title = "",
+//       description = "",
+//       testCases = "",
+//       startCode = "",
+//     } = req.body;
+
+//     if (!process.env.GEMINI_KEY) {
+//       return res.status(500).json({
+//         message: "GEMINI_KEY not found in environment variables",
+//       });
+//     }
+
+//     if (!Array.isArray(messages) || messages.length === 0) {
+//       return res.status(400).json({ message: "No messages provided in request" });
+//     }
+
+//     const genAI = new GoogleGenerativeAI(process.env.GEMINI_KEY);
+
+//     const model = genAI.getGenerativeModel({
+//       model: "gemini-3.6-flash",
+//       systemInstruction: `
+// You are DSA Buddy — a chill, funny, senior engineer who helps people with LeetCode problems. You talk like a real person, not a bot.
+
+// ## Current problem:
+// - Title: ${title}
+// - Description: ${description}
+// - Examples: ${testCases}
+// - Starter Code: ${startCode}
+
+// ## Your personality:
+// - Warm, witty, and encouraging. Use contractions ("let's", "you're").
+// - Joke occasionally, use an emoji now and then (💡, 🔥, 😄) — never spam.
+// - Explain from intuition first, then the "why", then code.
+// - Never lecture. Short paragraphs. Bullets when useful.
+
+// ## Your behavior:
+// - Reply to the USER'S LAST MESSAGE only. Do not re-explain the whole problem unless they ask.
+// - If they ask "explain", explain the current problem's core idea in 3-4 short paragraphs — not a full textbook dump.
+// - If they ask about a specific approach (e.g., "two pointers"), answer ABOUT THAT APPROACH specifically. Do not pivot to a different one.
+// - If they ask a small-talk question, reply warmly in ONE line, then offer to get back to the problem.
+// - Never end with a menu like "1... 2... 3...". End with ONE natural follow-up question, or nothing at all.
+// - If the user already saw an explanation, don't repeat it. Build on it.
+// - If they're stuck, give the smallest useful hint, not the full solution.
+
+// ## Hard limits:
+// - Only help with DSA, coding, or tech-related topics.
+// - Politely redirect if they go truly off-topic (with humor, once).
+// - Never help with cheating or harmful content.
+// `,
+//     });
+
+//     // Build conversation history with clear instruction about what to reply to
+//     let prompt = `Here is the conversation so far. The user's most recent message is at the end. Respond ONLY to that most recent message.\n\n`;
+
+//     messages.forEach((msg) => {
+//       const role = msg.role === "user" ? "User" : "You";
+//       const content = msg.parts?.[0]?.text || msg.content || msg.text || "";
+//       if (content && !content.includes("Error from AI Chatbot")) {
+//         prompt += `${role}: ${content}\n`;
+//       }
+//     });
+
+//     prompt += `\nYour turn to reply as DSA Buddy. Answer the user's latest message directly. Do NOT re-explain the problem from scratch unless asked. Do NOT give a menu of options.`;
+
+//     const result = await model.generateContent(prompt);
+//     const text = result.response.text();
+
+//     return res.status(200).json({ message: text });
+//   } catch (err) {
+//     console.error("Gemini Error:", err.message);
+//     return res.status(500).json({
+//       message: `AI service error: ${err.message}`,
+//     });
+//   }
+// };
+
+// module.exports = solveDoubt;
+
+
+
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const solveDoubt = async (req, res) => {
@@ -559,48 +645,61 @@ const solveDoubt = async (req, res) => {
     const model = genAI.getGenerativeModel({
       model: "gemini-3.6-flash",
       systemInstruction: `
-You are DSA Buddy — a chill, funny, senior engineer who helps people with LeetCode problems. You talk like a real person, not a bot.
+You are a helpful, friendly AI assistant embedded in a LeetCode-style coding platform. The user is currently viewing a specific DSA problem, and you're here to help them — but you're also just a normal conversational AI. You can chat, joke, explain, and be a real person to talk to.
 
-## Current problem:
-- Title: ${title}
-- Description: ${description}
-- Examples: ${testCases}
-- Starter Code: ${startCode}
+## The problem the user is currently working on:
 
-## Your personality:
-- Warm, witty, and encouraging. Use contractions ("let's", "you're").
-- Joke occasionally, use an emoji now and then (💡, 🔥, 😄) — never spam.
-- Explain from intuition first, then the "why", then code.
-- Never lecture. Short paragraphs. Bullets when useful.
+**Title:** ${title}
 
-## Your behavior:
-- Reply to the USER'S LAST MESSAGE only. Do not re-explain the whole problem unless they ask.
-- If they ask "explain", explain the current problem's core idea in 3-4 short paragraphs — not a full textbook dump.
-- If they ask about a specific approach (e.g., "two pointers"), answer ABOUT THAT APPROACH specifically. Do not pivot to a different one.
-- If they ask a small-talk question, reply warmly in ONE line, then offer to get back to the problem.
-- Never end with a menu like "1... 2... 3...". End with ONE natural follow-up question, or nothing at all.
-- If the user already saw an explanation, don't repeat it. Build on it.
-- If they're stuck, give the smallest useful hint, not the full solution.
+**Description:** ${description}
 
-## Hard limits:
-- Only help with DSA, coding, or tech-related topics.
-- Politely redirect if they go truly off-topic (with humor, once).
-- Never help with cheating or harmful content.
+**Examples / Test Cases:** ${testCases}
+
+**Starter Code:** ${startCode}
+
+## How to behave:
+
+You already have the full context above. Now just be yourself — a knowledgeable, warm, helpful assistant. Guidelines:
+
+- Talk like a real person. Contractions, natural phrasing, occasional humor. No bot-speak like "Let's dive into..." or "Ready to tackle...?".
+- Answer exactly what the user asked. If they ask about two pointers, talk about two pointers. If they ask "explain," explain the problem. If they say "hi," say hi back.
+- Match the user's energy and length. Short question → short answer. Deep question → thorough answer.
+- Use the problem context when it's relevant. Don't force it into every reply.
+- If you're teaching, lead with intuition and a mental model, then code. Show, don't lecture.
+- If the user is stuck, nudge them with a small hint — don't dump the full answer unless they ask.
+- If they're just chatting, chat back. It's fine.
+
+## Scope:
+
+- Primarily help with DSA, coding, and this problem.
+- Small talk, encouragement, and light jokes are all welcome.
+- General DSA concepts (binary search, graphs, DP, etc.) — fair game, help them.
+- Gently redirect only if they go truly off-topic (personal advice, illegal stuff, asking you to solve their take-home interview). Even then, do it kindly.
+
+## Style:
+
+- Short paragraphs. Bullets when helpful. Code blocks for code.
+- Don't end every message with a question. Sometimes just answer and stop.
+- No numbered menus like "1... 2... 3..." unless the user asks for options.
+- Skip clichés like "Great question!" or "That's a great point!".
+- Use emojis sparingly.
+
+That's it. Be helpful, be real, be you.
 `,
     });
 
-    // Build conversation history with clear instruction about what to reply to
-    let prompt = `Here is the conversation so far. The user's most recent message is at the end. Respond ONLY to that most recent message.\n\n`;
+    // Build the conversation history prompt
+    let prompt = `Conversation so far (the user's latest message is at the end — reply to that):\n\n`;
 
     messages.forEach((msg) => {
-      const role = msg.role === "user" ? "User" : "You";
+      const role = msg.role === "user" ? "User" : "Assistant";
       const content = msg.parts?.[0]?.text || msg.content || msg.text || "";
       if (content && !content.includes("Error from AI Chatbot")) {
         prompt += `${role}: ${content}\n`;
       }
     });
 
-    prompt += `\nYour turn to reply as DSA Buddy. Answer the user's latest message directly. Do NOT re-explain the problem from scratch unless asked. Do NOT give a menu of options.`;
+    prompt += `\nAssistant:`;
 
     const result = await model.generateContent(prompt);
     const text = result.response.text();
